@@ -40,6 +40,7 @@
 
 #define NUM_DIGITAL_PINS (32u)
 #define NUM_ANALOG_INPUTS (8u)
+
 // Mapping from analog pin number to digital pin number
 // This can be a function if pin numbers are contiguous or it can specify the mapping for each pin explicitly.
 #define analogInputToDigitalPin(p) ((p < NUM_ANALOG_INPUTS) ? (p) + 24 : -1)
@@ -69,11 +70,7 @@ static const uint8_t A7 = 31;
 
 /**
  * Pin-Change Interrupt Mapping
-   PCINT31-24: D7-0   : bit 3(D)
-   PCINT15-8:  D15-8  : bit 1(B)
-   PCINT23-16: D23-16 : bit 2(C)
-   PCINT7-0:   D31-24 : bit 0(A) (also A0..A7)
-*/
+ */
 
 #define digitalPinToPCICR(p) (((p) >= 0 && (p) < NUM_DIGITAL_PINS) ? (&PCICR) : ((uint8_t *)0))
 #define digitalPinToPCICRbit(p) (((p) <= 7) ? 3 : (((p) <= 15) ? 1 : (((p) <= 23) ? 2 : 0)))
@@ -94,6 +91,7 @@ static const uint8_t A7 = 31;
 #define PB 2
 #define PC 3
 #define PD 4
+
 const uint16_t PROGMEM port_to_mode_PGM[] =
     {
         NOT_A_PORT,
@@ -248,13 +246,12 @@ static const uint8_t SCK = 15;
  * Wire (I2C) Interfaces
  *
  * I2C – Inter-Integrated Circuit (Host operation)
- *
  */
 static const uint8_t SDA = 17;
 static const uint8_t SCL = 16;
 
 /*----------------------------------------------------------------------------
- *       Other defines
+ * Other defines anc static constants
  *
  * Put other defines that will be convenient for your users or libraries here.
  *----------------------------------------------------------------------------*/

@@ -5,7 +5,7 @@
 # https://arduino.github.io/arduino-cli/latest/platform-specification/
 
 name=$package_name
-version=$package_version7
+version=$package_version
 
 # AVR compile variables
 # ---------------------
