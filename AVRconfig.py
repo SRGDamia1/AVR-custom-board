@@ -42,6 +42,7 @@ class AVRconfig:
 
         # define common properties
         self.name = self.d["board_name"]
+        self.d["board_name_upper"] = self.d["board_name"].upper()
         self.version = self.d["package_version"]
         self.version_parsed = Version(self.d["package_version"])
         self.d["package_version_major"] = self.version_parsed.major
@@ -54,7 +55,7 @@ class AVRconfig:
         # add flag for the board name
         self.d[
             "extra_flags"
-        ] += f" -D{self.d['vendor_name'].upper()}_{self.d['board_name'].upper()}"
+        ] += f" -D{self.d['vendor_name'].upper()}_{self.d['board_name_upper']}"
 
         # add extra extra GCC flags
         self.d["extra_flags"] += (
