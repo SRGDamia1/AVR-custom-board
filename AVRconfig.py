@@ -13,7 +13,7 @@ from string import Template
 import hashlib
 import json
 from datetime import date
-
+import requests
 
 # Cloning the uf2 directory as part of the build creates read-only files which rmtree cannot
 # delete without a helper.
@@ -38,7 +38,7 @@ class AVRconfig:
 
         # now, read additional options for the bootloader
         self.extras = {}
-        for s in ["m4_usart_options", "bootloader_extras"]:
+        for s in ["bootloader_extras"]:
             for key, value in config_file[s].items():
                 self.extras[key] = value
 
@@ -59,40 +59,11 @@ class AVRconfig:
             "extra_flags"
         ] += f" -D{self.d['vendor_name'].upper()}_{self.d['board_name'].upper()}"
 
-        # add MCU-specific parameters
-        # SAMD21's have up to 256kB flash and up to 32kB RAM
-        # 15 series - 32kB flash; 4096 RAM
-        # 16 series - 64kB flash; 8192 RAM
-        # 17 series - 128kB flash; 16384 RAM
-        # 18 series - 256kB flash; 32768 RAM
-        # NOTE: The only Arduino boards I've found use the '18' series
-        if self.chip_family == "SAMD21":
-            self.d["data_size"] = 0
-            self.d["flash_size"] = 262144  # 0x00040000 including bootloader space
-            self.d["ram_size"] = 32768  # 0x00008000
-            self.d["maximum_size"] = 262144  # 0x00040000 including bootloader space
-            self.d["offset"] = "0x2000"  # 8192, size of the bootloader
-            self.d["build_mcu"] = "cortex-m0plus"
-            self.d["f_cpu"] = "48000000L"
-            self.d["extra_flags"] += " -DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS"
-
-        # convert to some strings needed for templates
-        self.d["maximum_size_hex"] = f"{self.d['maximum_size']:#0{10}x}"
-        self.d["flash_size_hex"] = f"{self.d['flash_size']:#0{10}x}"
-        self.d["ram_size_hex"] = f"{self.d['ram_size']:#0{10}x}"
-
         # add extra extra GCC flags
         self.d["extra_flags"] += (
             " " + config_file["additional_build_flags"]["extra_extra_flags"]
         )
         self.d["extra_flags_pio"] = self.d["extra_flags"].split(" ")
-        # remove the duplicate flags added by default by PlatformIO
-        self.d["extra_flags_pio"] = [
-            flag
-            for flag in self.d["extra_flags_pio"]
-            if flag not in ["-mfloat-abi=hard", "-mfpu=fpv4-sp-d16"]
-        ]
-
         # convert to json-esque string
         self.d["extra_flags_pio"] = json.dumps(self.d["extra_flags_pio"])
 

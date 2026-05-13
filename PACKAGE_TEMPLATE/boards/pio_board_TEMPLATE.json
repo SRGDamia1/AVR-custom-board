@@ -14,7 +14,7 @@
     "protocol": "arduino",
     "require_upload_port": true,
     "maximum_ram_size": $ram_size,
-    "maximum_size": $flash_size,
+    "maximum_size": $maximum_size,
     "speed": $upload_speed
   },
   "debug": {
