@@ -11,10 +11,10 @@
     "variant": "$board_name"
   },
   "upload": {
-    "protocol": "arduino",
-    "require_upload_port": true,
     "maximum_ram_size": $ram_size,
     "maximum_size": $maximum_size,
+    "protocol": "arduino",
+    "require_upload_port": true,
     "speed": $upload_speed
   },
   "debug": {

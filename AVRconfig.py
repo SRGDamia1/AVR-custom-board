@@ -33,19 +33,12 @@ class AVRconfig:
         # read all values from main sections of config file
         config_file = configparser.ConfigParser()
         config_file.read(filename)
-        for s in ["hardware", "usb", "names", "paths"]:
+        for s in ["hardware", "names"]:
             for key, value in config_file[s].items():
                 self.d[key] = value
 
-        # now, read additional options for the bootloader
-        self.extras = {}
-        for s in ["bootloader_extras"]:
-            for key, value in config_file[s].items():
-                self.extras[key] = value
-
         # check for empty values
         self.check_missing_values(self.d)
-        self.check_missing_values(self.extras)
 
         # define common properties
         self.name = self.d["board_name"]
@@ -54,7 +47,6 @@ class AVRconfig:
         self.d["package_version_major"] = self.version_parsed.major
         self.d["package_version_minor"] = self.version_parsed.minor
         self.d["package_version_patch"] = self.version_parsed.micro
-        self.chip_family = self.d["chip_family"]
         self.chip_variant = self.d["chip_variant"]
         self.d["chip_variant_lower"] = self.d["chip_variant"].lower()
         # chip variant is first extra flag
@@ -112,18 +104,18 @@ class AVRconfig:
         variants_dir = self.package_directory + "/variants"
         board_variant = f"{variants_dir}/{self.name}"
         os.rename(variants_dir + "/your_variant", board_variant)
-        # move the hand written variants files into the board variant directory
-        shutil.copy2("board_data/variant.cpp", f"{board_variant}")
-        shutil.copy2("board_data/variant.h", f"{board_variant}")
+        # move the hand written pins_arduino.h files into the board variant directory
+        shutil.copy2("board_data/pins_arduino.h", f"{board_variant}")
 
     # creates boards.txt, platform.txt and README.md files, by processing template files in package directory
     # these are used by the Arduino IDE
     def write_platform_templates(self):
-        # rename the variant.h as a template so we can easily run substitutions in it
+        # rename the pins_arduino.h as a template so we can easily run substitutions in it
         # this makes it easier for users to get version numbers right
-        board_variant = f"{self.package_directory}/variants/{self.name}/variant.h"
+        board_variant = f"{self.package_directory}/variants/{self.name}/pins_arduino.h"
         os.rename(
-            board_variant, board_variant.replace("/variant.h", "/variant_TEMPLATE.h")
+            board_variant,
+            board_variant.replace("/pins_arduino.h", "/pins_arduino_TEMPLATE.h"),
         )
 
         # Run substitutions in all _TEMPLATE files
@@ -272,3 +264,5 @@ class AVRconfig:
         )
         with open(indexfile_name, "w", encoding="UTF-8") as indexfile:
             json.dump(packages, indexfile, indent=2)
+
+# cSpell:words esque AVRconfig
