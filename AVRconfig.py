@@ -14,6 +14,7 @@ import hashlib
 import json
 from datetime import date
 import requests
+from packaging.version import Version
 
 # Cloning the uf2 directory as part of the build creates read-only files which rmtree cannot
 # delete without a helper.
@@ -49,6 +50,10 @@ class AVRconfig:
         # define common properties
         self.name = self.d["board_name"]
         self.version = self.d["package_version"]
+        self.version_parsed = Version(self.d["package_version"])
+        self.d["package_version_major"] = self.version_parsed.major
+        self.d["package_version_minor"] = self.version_parsed.minor
+        self.d["package_version_patch"] = self.version_parsed.micro
         self.chip_family = self.d["chip_family"]
         self.chip_variant = self.d["chip_variant"]
         self.d["chip_variant_lower"] = self.d["chip_variant"].lower()
@@ -114,6 +119,13 @@ class AVRconfig:
     # creates boards.txt, platform.txt and README.md files, by processing template files in package directory
     # these are used by the Arduino IDE
     def write_platform_templates(self):
+        # rename the variant.h as a template so we can easily run substitutions in it
+        # this makes it easier for users to get version numbers right
+        board_variant = f"{self.package_directory}/variants/{self.name}/variant.h"
+        os.rename(
+            board_variant, board_variant.replace("/variant.h", "/variant_TEMPLATE.h")
+        )
+
         # Run substitutions in all _TEMPLATE files
         template_src_files = [
             os.path.join(dp, f)
