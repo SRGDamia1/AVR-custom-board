@@ -1,96 +1,28 @@
-# Copyright (c) 2014-2015 Arduino LLC.  All right reserved.
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-# based on Adafruit's board support package for SAMD boards, version 1.7.13
-
-menu.cache=Cache
-menu.speed=CPU Speed
-menu.opt=Optimize
-menu.maxqspi=Max QSPI
-menu.usbstack=USB Stack
-menu.debug=Debug
-
-
-# -----------------------------------
-# $board_name_long ($chip_family)
 # -----------------------------------
 $board_name.name=$board_name_long
-
-# VID/PID for Bootloader, Arduino & CircuitPython
-$board_name.vid.0=$usb_vid
-$board_name.pid.0=$usb_pid
+# -----------------------------------
 
 # Upload
-$board_name.upload.tool=bossac18
-$board_name.upload.protocol=sam-ba
-$board_name.upload.maximum_size=$flash_size
-$board_name.upload.offset=$offset
-$board_name.upload.use_1200bps_touch=true
-$board_name.upload.wait_for_upload_port=true
-$board_name.upload.native_usb=true
+$board_name.upload.tool=arduino:avrdude
+$board_name.upload.protocol=arduino
+$board_name.upload.maximum_size=130048
+$board_name.upload.speed=57600
+
 
 # Build
 $board_name.build.mcu=$build_mcu
 $board_name.build.f_cpu=$f_cpu
-$board_name.build.usb_product="$board_name_long"
-$board_name.build.usb_manufacturer="$vendor_name_long"
 $board_name.build.board=$board_define_name
-$board_name.build.core=adafruit:arduino
+$board_name.build.core=arduino:arduino
 $board_name.build.extra_flags=$extra_flags {build.usb_flags}
-$board_name.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-$board_name.build.openocdscript=$openocdscript
 $board_name.build.variant=$board_name
-$board_name.build.variant_system_lib=
-$board_name.build.vid=$usb_vid
-$board_name.build.pid=$usb_pid
-$board_name.bootloader.tool=openocd
-$board_name.bootloader.file=$board_name/$bootloader_filename
-$compiler_ld_flags
 
-# Menu: Cache (only for SAMD51/SAME51)
-$menu_cache
-
-# Menu: Speed (only for SAMD51/SAME51)
-$menu_speed
-
-
-# Menu: Optimization
-$board_name.menu.opt.small=Small (-Os) (standard)
-$board_name.menu.opt.small.build.flags.optimize=-Os
-$board_name.menu.opt.fast=Fast (-O2)
-$board_name.menu.opt.fast.build.flags.optimize=-O2
-$board_name.menu.opt.faster=Faster (-O3)
-$board_name.menu.opt.faster.build.flags.optimize=-O3
-$board_name.menu.opt.fastest=Fastest (-Ofast)
-$board_name.menu.opt.fastest.build.flags.optimize=-Ofast
-$board_name.menu.opt.dragons=Here be dragons (-Ofast -funroll-loops)
-$board_name.menu.opt.dragons.build.flags.optimize=-Ofast -funroll-loops
-
-# Menu: QSPI Speed
-$board_name.menu.maxqspi.50=50 MHz (standard)
-$board_name.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-$board_name.menu.maxqspi.fcpu=CPU Speed / 2
-$board_name.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
-
-# Menu: USB Stack
-$board_name.menu.usbstack.arduino=Arduino
-$board_name.menu.usbstack.tinyusb=TinyUSB
-$board_name.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
-
-# Menu: Debug
-$board_name.menu.debug.off=Off
-$board_name.menu.debug.on=On
-$board_name.menu.debug.on.build.flags.debug=-g
+# Bootloader
+$board_name.bootloader.tool=arduino:avrdude
+$board_name.bootloader.low_fuses=0xFF
+$board_name.bootloader.high_fuses=0xD6
+$board_name.bootloader.extended_fuses=0xFD
+#$board_name.bootloader.path=optiboot
+$board_name.bootloader.file=optiboot/optiboot_atmega1284p.hex
+$board_name.bootloader.unlock_bits=0x3F
+$board_name.bootloader.lock_bits=0x2F
