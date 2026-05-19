@@ -32,34 +32,25 @@
  *
  * To be used in comparisons, such as ${board_name_upper}_VERSION >= ${board_name_upper}_VERSION_VAL(4, 0, 0)
  */
-#define ${board_name_upper}_VERSION ${board_name_upper}_VERSION_VAL(${board_name_upper}_VERSION_MAJOR, \
-                                                                       ${board_name_upper}_VERSION_MINOR, \
-                                                                       ${board_name_upper}_VERSION_PATCH)
+#define ${board_name_upper}_VERSION ${board_name_upper}_VERSION_VAL(${board_name_upper}_VERSION_MAJOR, ${board_name_upper}_VERSION_MINOR, ${board_name_upper}_VERSION_PATCH)
 // clang-format on
 
 /*----------------------------------------------------------------------------
  *        Pins
  *----------------------------------------------------------------------------*/
 
+// pin counts
 #define NUM_DIGITAL_PINS (32u)
 #define NUM_ANALOG_INPUTS (8u)
-
-// Mapping from analog pin number to digital pin number
-// This can be a function if pin numbers are contiguous or it can specify the mapping for each pin explicitly.
-#define analogInputToDigitalPin(p) ((p < NUM_ANALOG_INPUTS) ? (p) + 24 : -1)
-#define digitalPinToInterrupt(p) ((p) == 10 ? 2 : ((p) == 2 ? 0 : ((p) == 3 ? 1 : NOT_AN_INTERRUPT)))
-
-#define digitalPinHasPWM(p) ((p) == 11 || (p) == 12 || (p) == 14 || (p) == 15 || (p) == 4 || (p) == 5 || (p) == 6 || (p) == 7)
-
-// LEDs
-// Optional macros for user LEDs.
-static const uint8_t LED2 = 8; // Green
-static const uint8_t LED1 = 9; // Red
 
 /**
  * Analog pin definitions
  * Explicitly define each analog pin number to its corresponding digital pin number
  */
+
+// Mapping from analog pin number to digital pin number
+// This can be a function if pin numbers are contiguous or it can specify the mapping for each pin explicitly.
+#define analogInputToDigitalPin(p) ((p < NUM_ANALOG_INPUTS) ? (p) + 24 : -1)
 
 // Standard analog pins as defines
 static const uint8_t A0 = 24;
@@ -72,13 +63,27 @@ static const uint8_t A6 = 30;
 static const uint8_t A7 = 31;
 
 /**
- * Pin-Change Interrupt Mapping
+ * Interrupt Mapping
+ * External Interrupts have a have a dedicated mapping - one pin per interrupt.
+ * Pin Change Interrupts are mapped to ports.
  */
 
+// Mapping from digital pin number to EXTERNAL interrupt number
+#define digitalPinToInterrupt(p) ((p) == 10 ? 2 : ((p) == 2 ? 0 : ((p) == 3 ? 1 : NOT_AN_INTERRUPT)))
+
+// Mapping from digital pin number to pin change interrupt control register (PCICR) and bit
 #define digitalPinToPCICR(p) (((p) >= 0 && (p) < NUM_DIGITAL_PINS) ? (&PCICR) : ((uint8_t *)0))
 #define digitalPinToPCICRbit(p) (((p) <= 7) ? 3 : (((p) <= 15) ? 1 : (((p) <= 23) ? 2 : 0)))
+// Mapping from digital pin number to pin change mask register (PCMSK) and bit
 #define digitalPinToPCMSK(p) (((p) <= 7) ? (&PCMSK3) : (((p) <= 15) ? (&PCMSK1) : (((p) <= 23) ? (&PCMSK2) : (&PCMSK0))))
 #define digitalPinToPCMSKbit(p) ((p) % 8)
+
+/**
+ * Pulse Width Modulation (PWM) Mapping
+ */
+
+// Boolean function to check if a digital pin supports PWM
+#define digitalPinHasPWM(p) ((p) == 11 || (p) == 12 || (p) == 14 || (p) == 15 || (p) == 4 || (p) == 5 || (p) == 6 || (p) == 7)
 
 #ifdef ARDUINO_MAIN
 
@@ -239,11 +244,21 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM[] =
  *
  * SPI – Serial Peripheral Interface (Host operation)
  */
+// SD Card SPI
+#define PIN_SPI_MOSI (13)
+// ^ Digital pin for SPI Data Out (MOSI as host, MISO as client)
+#define PIN_SPI_SCK (15)
+// ^ Digital pin for SPI SCK
+#define PIN_SPI_SS (12)
+// ^ Digital pin for SPI CS
+#define PIN_SPI_MISO (14)
+// ^ Digital pin for SPI Data In (MISO as host, MOSI as client)
+
 // static constants for the SPI pins
-static const uint8_t SS = 12;
-static const uint8_t MOSI = 13;
-static const uint8_t MISO = 14;
-static const uint8_t SCK = 15;
+static const uint8_t SS = PIN_SPI_SS;
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK = PIN_SPI_SCK;
 
 /**
  * Wire (I2C) Interfaces
@@ -259,17 +274,15 @@ static const uint8_t SCL = 16;
  * Put other defines that will be convenient for your users or libraries here.
  *----------------------------------------------------------------------------*/
 
-static const uint8_t GROVEPWR = 22;
-static const uint8_t GROVEPWR_OFF = 0;
-static const uint8_t GROVEPWR_ON = 1;
-
-static const uint8_t BEEDTR = 23;
-static const uint8_t BEERTS = 20;
-static const uint8_t BEECTS = 19;
-
-static const uint8_t BATVOLTPIN = 30; // A6
-#define BATVOLT_R1 47                 // in fact 4.7M
-#define BATVOLT_R2 100                // in fact 10M
+// LEDs
+// Optional macros and static constants for user LEDs.
+#define LED_BUILTIN 8
+static const uint8_t LED2 = 8; // Green
+static const uint8_t LED1 = 9; // Red
 
 #endif // Pins_Arduino_h
 // vim:ai:cin:sts=2 sw=2 ft=cpp
+
+// cSpell:words RXPO DIPO DOPO MSSEN SYNCBUSY PERIPH XCLK LINUXBRIDGE
+// cSpell:words ATMEGA TQFN XTAL AVCC XBEE PCICR
+// cSpell:words DDRA DDRB DDRC DDRD PORTA PORTB PORTC PORTD PINA PINB PINC PIND
