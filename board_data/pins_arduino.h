@@ -303,15 +303,15 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM[] =
 #define PIN_SPI_SS (12)
 // ^ Digital pin for SPI CS
 
-// defines for the SD Card for SDFat - Adafruit Fork
+// Defines for the SD Card for SDFat
 #define SDCARD_SPI SPI
-// ^ The SPI interface to use (e.g. SPI, SPI1, etc.)
-#define SDCARD_SS_PIN (12)
-// ^ The chip select for the SD card (not the external flash, which is EXTERNAL_FLASH_USE_CS)
+#define SDCARD_MISO_PIN PIN_SPI_MISO
+#define SDCARD_MOSI_PIN PIN_SPI_MOSI
+#define SDCARD_SCK_PIN PIN_SPI_SCK
+#define SDCARD_SS_PIN PIN_SPI_SS
 
-// defines for the internal flash for Adafruit SPI Flash library
+// Defines for the internal flash for Adafruit SPI Flash library
 #define EXTERNAL_FLASH_USE_SPI SPI
-// ^ The SPI interface to use (e.g. SPI, SPI1, etc.)
 #define EXTERNAL_FLASH_USE_CS (20)
 // ^ The chip select for the external flash (not the SD card, which is PIN_SPI_SS)
 
