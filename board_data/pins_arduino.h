@@ -291,15 +291,29 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM[] =
  *
  * SPI – Serial Peripheral Interface (Host operation)
  */
-// SD Card SPI
+// SPI Pins
 #define PIN_SPI_MOSI (13)
 // ^ Digital pin for SPI Data Out (MOSI as host, MISO as client)
-#define PIN_SPI_SCK (15)
-// ^ Digital pin for SPI SCK
-#define PIN_SPI_SS (12)
-// ^ Digital pin for SPI CS
 #define PIN_SPI_MISO (14)
 // ^ Digital pin for SPI Data In (MISO as host, MOSI as client)
+#define PIN_SPI_SCK (15)
+// ^ Digital pin for SPI SCK
+
+// SS for primary SPI device (the SD card on the Mayfly)
+#define PIN_SPI_SS (12)
+// ^ Digital pin for SPI CS
+
+// defines for the SD Card for SDFat - Adafruit Fork
+#define SDCARD_SPI SPI
+// ^ The SPI interface to use (e.g. SPI, SPI1, etc.)
+#define SDCARD_SS_PIN (12)
+// ^ The chip select for the SD card (not the external flash, which is EXTERNAL_FLASH_USE_CS)
+
+// defines for the internal flash for Adafruit SPI Flash library
+#define EXTERNAL_FLASH_USE_SPI SPI
+// ^ The SPI interface to use (e.g. SPI, SPI1, etc.)
+#define EXTERNAL_FLASH_USE_CS (20)
+// ^ The chip select for the external flash (not the SD card, which is PIN_SPI_SS)
 
 // static constants for the SPI pins
 static const uint8_t SS = PIN_SPI_SS;
