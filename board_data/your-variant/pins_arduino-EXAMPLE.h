@@ -7,33 +7,7 @@
 
 #include <avr/pgmspace.h>
 
-/*----------------------------------------------------------------------------
- *        Version Information
- *
- * Don't change this; it is used as a template!
- *----------------------------------------------------------------------------*/
-// clang-format off
-/** Major version number (X.x.x) */
-#define ${board_name_upper}_VERSION_MAJOR $package_version_major
-/** Minor version number (x.X.x) */
-#define ${board_name_upper}_VERSION_MINOR $package_version_minor
-/** Patch version number (x.x.X) */
-#define ${board_name_upper}_VERSION_PATCH $package_version_patch
-
-/**
- * Macro to convert version number into an integer
- *
- * To be used in comparisons, such as ${board_name_upper}_VERSION >= ${board_name_upper}_VERSION_VAL(4, 0, 0)
- */
-#define ${board_name_upper}_VERSION_VAL(major, minor, patch)((major << 16) | (minor << 8) | (patch))
-
-/**
- * Current Board version, as an integer
- *
- * To be used in comparisons, such as ${board_name_upper}_VERSION >= ${board_name_upper}_VERSION_VAL(4, 0, 0)
- */
-#define ${board_name_upper}_VERSION ${board_name_upper}_VERSION_VAL(${board_name_upper}_VERSION_MAJOR, ${board_name_upper}_VERSION_MINOR, ${board_name_upper}_VERSION_PATCH)
-// clang-format on
+// ${variant_version_macros}
 
 /*----------------------------------------------------------------------------
  *        Pins

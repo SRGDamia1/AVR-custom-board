@@ -1,7 +1,7 @@
 {
-  "name": "EnviroDIY Mayfly",
-  "url": "http://envirodiy.org/forums/",
-  "vendor": "EnviroDIY",
+  "name": "$board_name_long",
+  "url": "$info_url",
+  "vendor": "$vendor_name_long",
   "frameworks": ["arduino"],
   "build": {
     "core": "arduino",
