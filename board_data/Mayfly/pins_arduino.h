@@ -7,33 +7,7 @@
 
 #include <avr/pgmspace.h>
 
-/*----------------------------------------------------------------------------
- *        Version Information
- *
- * Don't change this; it is used as a template!
- *----------------------------------------------------------------------------*/
-// clang-format off
-/** Major version number (X.x.x) */
-#define ${board_name_upper}_VERSION_MAJOR $package_version_major
-/** Minor version number (x.X.x) */
-#define ${board_name_upper}_VERSION_MINOR $package_version_minor
-/** Patch version number (x.x.X) */
-#define ${board_name_upper}_VERSION_PATCH $package_version_patch
-
-/**
- * Macro to convert version number into an integer
- *
- * To be used in comparisons, such as ${board_name_upper}_VERSION >= ${board_name_upper}_VERSION_VAL(4, 0, 0)
- */
-#define ${board_name_upper}_VERSION_VAL(major, minor, patch)((major << 16) | (minor << 8) | (patch))
-
-/**
- * Current Board version, as an integer
- *
- * To be used in comparisons, such as ${board_name_upper}_VERSION >= ${board_name_upper}_VERSION_VAL(4, 0, 0)
- */
-#define ${board_name_upper}_VERSION ${board_name_upper}_VERSION_VAL(${board_name_upper}_VERSION_MAJOR, ${board_name_upper}_VERSION_MINOR, ${board_name_upper}_VERSION_PATCH)
-// clang-format on
+// ${variant_version_macros}
 
 /*----------------------------------------------------------------------------
  *        Pins
@@ -361,33 +335,6 @@ static const uint8_t GROVEPWR_ON = 1;
 static const uint8_t BATVOLTPIN = 30; // A6
 #define BATVOLT_R1 47                 // in fact 4.7M
 #define BATVOLT_R2 100                // in fact 10M
-
-#if defined(MAYFLY_VERSION) && defined(MAYFLY_VERSION_VAL) && MAYFLY_VERSION >= MAYFLY_VERSION_VAL(2, 0, 0)
-
-#define SC16IS7XX_DEFAULT_ADDRESS \
-    (0X9A) ///< A0 tied to GND, A1 tied to GND
-#define SC16IS7XX_DEFAULT_XTAL_FREQ \
-    (3686000UL) ///< The default frequency of the crystal in hertz
-
-// External serial chip
-// Port expander pins as static constants
-static const uint8_t X0 = 0;
-static const uint8_t X1 = 1;
-static const uint8_t X2 = 2;
-static const uint8_t X3 = 3;
-static const uint8_t X4 = 4;
-static const uint8_t X5 = 5;
-static const uint8_t X6 = 6;
-static const uint8_t X7 = 7;
-
-// #include <SC16IS752.h>
-
-// SC16IS752 Serial2(SC16IS752_CHANNEL_A);
-// SC16IS752 Serial3(SC16IS752_CHANNEL_B);
-
-// extern SC16IS752 Serial2;
-// extern SC16IS752 Serial3;
-#endif
 
 #endif // Pins_Arduino_h
 // vim:ai:cin:sts=2 sw=2 ft=cpp
