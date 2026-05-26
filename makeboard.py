@@ -1,28 +1,29 @@
 #!/usr/bin/env python3
-import AVRconfig
+import AVRConfig
 import os
 import shutil
 
-# Read all board configuration data
+# Read the package configuration file
+# this will also read all of the board config files and store them in the AVRPackage object
 print("Reading board config...")
-board = AVRconfig.AVRconfig("board_data/board-config.ini")
+package = AVRConfig.AVRPackage("board_data")
 
 # %%
 # setup build directory and move there all source files
 print("\nCopying sources to build directory...")
-board.setup_build_directory("build")
+package.setup_build_directory()
 
 # Customize the various template files
 print("\nCustomizing all template files")
-board.write_platform_templates()
+package.write_platform_templates()
 
 # compressing directory into zip archive
 print("\nCompressing the package archive")
-board.package_archive()
+package.package_archive()
 
 # create json file
 print("\nCreating json index file")
-board.write_index_json()
+package.write_index_json()
 
 
 # %%
