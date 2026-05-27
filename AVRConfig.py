@@ -276,6 +276,13 @@ class AVRPackage:
             "Combining individual board template files into a single boards.txt file and deleting the individual files"
         )
         combined_boards = []
+        with open(
+            os.path.join(self.package_directory, "boards_header.txt"),
+            "r",
+            encoding="UTF-8",
+        ) as board_file:
+            combined_boards.append(board_file.read())
+        os.remove(os.path.join(self.package_directory, "boards_header.txt"))
         for board in self.boards_config:
             print(
                 f"Opening file for board {board.name} at {os.path.join(self.package_directory, f'boards_{board.name}.txt')}"
@@ -315,13 +322,15 @@ class AVRPackage:
     # record archive size and SHA256 checksum
     def package_archive(self):
         # archive_filename = f"{self.config_directory}/{self.name}-{self.version}"
-        archive_filename = os.path.join(
-            self.build_directory,
-            f"{self.d['package_name'].replace(' ','').lower()}-{self.package_version}",
+        archive_filename = (
+            f"{self.d['package_name'].replace(' ','').lower()}-{self.package_version}"
         )
         print(f"Creating package archive at {archive_filename}.zip")
         zip_archive = shutil.make_archive(
-            archive_filename,
+            os.path.join(
+                self.build_directory,
+                archive_filename,
+            ),
             "zip",
             root_dir=self.build_directory,
             # base_dir=self.version,
@@ -337,7 +346,7 @@ class AVRPackage:
             f"Created package archive, size {archive_size} bytes,\n SHA256 hash: {hash}"
         )
         # add the info to dictionary
-        self.d["archive_filename"] = archive_filename
+        self.d["archive_filename"] = archive_filename+ ".zip"
         self.d["archive_size"] = archive_size
         self.d["archive_checksum"] = hash
 
@@ -414,11 +423,8 @@ class AVRPackage:
             "architecture": "avr",
             "version": self.d["package_version"],
             "category": "Contributed",
-            "url": self.d["package_url"]
-            + self.d["archive_filename"].replace("build/", "")
-            + ".zip",
-            "archiveFileName": self.d["archive_filename"].replace("build/", "")
-            + ".zip",
+            "url": self.d["package_url"] + self.d["archive_filename"],
+            "archiveFileName": self.d["archive_filename"],
             "checksum": "SHA-256:" + self.d["archive_checksum"],
             "size": self.d["archive_size"],
             "boards": [],
