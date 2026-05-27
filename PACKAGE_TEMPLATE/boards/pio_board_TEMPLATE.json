@@ -8,7 +8,8 @@
     "extra_flags": $extra_flags_pio,
     "f_cpu": "$f_cpu",
     "mcu": "$chip_variant_lower",
-    "variant": "$board_name"
+    "variant": "$board_name",
+    "variant_framework": "framework-arduino-avr-$vendor_name"
   },
   "upload": {
     "maximum_ram_size": $ram_size,
