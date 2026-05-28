@@ -181,6 +181,9 @@ class AVRPackage:
                 board_config.d[
                     "extra_flags"
                 ] += f" -D{self.d['vendor_name'].upper()}_{board_config.d['board_name_upper']}"
+                board_config.d[
+                    "extra_flags"
+                ] += f" -DARDUINO_AVR_{self.d['vendor_name'].upper()}_{board_config.d['board_name_upper']}"
                 board_config.d["extra_flags_pio"] = board_config.d["extra_flags"].split(
                     " "
                 )
