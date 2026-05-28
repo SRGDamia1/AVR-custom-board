@@ -271,7 +271,7 @@ class AVRPackage:
                     file_info["src_file"]
                     .replace("_TEMPLATE", "_" + board.name + "_TEMPLATE")
                     # .replace("pio_board", self.d["vendor_name"])
-                    .replace("pio_board", "")
+                    .replace("pio_board_", "")
                 )
 
                 # make a **copy** of the template
