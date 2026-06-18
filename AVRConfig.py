@@ -75,7 +75,8 @@ def multikeysort(items, columns, functions={}, getter=i):
     return sorted(items, key=cmp_to_key(comparer))
 
 
-class AVRConfig:
+# The class for a single board configuration
+class AVRBoard:
     # constructor
     def __init__(self, filename):
         # dictionary containing all config data
@@ -87,10 +88,13 @@ class AVRConfig:
         for s in ["hardware", "names"]:
             for key, value in config_file[s].items():
                 self.d[key] = value
-                if key == "board_define_name" and value == "":
-                    self.d["board_define_name"] = (
-                        self.d["board_name"].lower().replace(" ", "_")
-                    )
+
+        # Fill in missing values that are allowed to be blank based on other values
+        for key, value in self.d.items():
+            if key == "board_define_name" and value == "":
+                self.d["board_define_name"] = (
+                    self.d["board_name"].lower().replace(" ", "_")
+                )
 
         # check for empty values
         self.check_missing_values(self.d)
@@ -120,12 +124,13 @@ class AVRConfig:
                 raise RuntimeError("Missing configuration parameters")
 
 
+# The class for the whole package, containing multiple board configurations
 class AVRPackage:
     # constructor
     def __init__(self, dirname):
         print(f"Reading package config from {dirname}")
         self.config_directory = dirname
-        self.boards_config: list[AVRConfig] = []
+        self.boards_config: list[AVRBoard] = []
         # dictionary containing all config data
         self.d = {}
         self.d["build_date"] = date.today().isoformat()
@@ -135,10 +140,13 @@ class AVRPackage:
         for s in ["vendor", "package"]:
             for key, value in config_file[s].items():
                 self.d[key] = value
-                if key == "package_define_name" and value == "":
-                    self.d["package_define_name"] = (
-                        self.d["package_name"].lower().replace(" ", "_")
-                    )
+
+        # Fill in missing values that are allowed to be blank based on other values
+        for key, value in self.d.items():
+            if key == "package_define_name" and value == "":
+                self.d["package_define_name"] = (
+                    self.d["package_name"].lower().replace(" ", "_")
+                )
 
         # check for empty values
         self.check_missing_values(self.d)
@@ -173,7 +181,7 @@ class AVRPackage:
             print(f"Looking for board config at {board_config_path}")
             if os.path.isfile(board_config_path) and "EXAMPLE" not in board_config_path:
                 print(f"Reading config for board {board_dir}")
-                board_config = AVRConfig(board_config_path)
+                board_config = AVRBoard(board_config_path)
                 board_config.d["board_dir"] = os.path.join(
                     self.config_directory, board_dir
                 )
@@ -227,7 +235,7 @@ class AVRPackage:
         print("Checking for and deleting the content of existing stale build directory")
         if os.path.exists(self.build_directory):
             print("Removing old build directory")
-            shutil.rmtree(self.build_directory, onerror=remove_readonly)
+            shutil.rmtree(self.build_directory, onexc=remove_readonly)
 
         # copy the template directory into the build directory
         print("Copying the template directory")
@@ -268,11 +276,12 @@ class AVRPackage:
             },
         ]
         for board in self.boards_config:
-            print(f"Customizing template files for board {board.name}")
+            print(f"Customizing special template files for board {board.name}")
             for file_info in board_files_to_copy:
                 dest_file = (
-                    file_info["src_file"]
-                    .replace("_TEMPLATE", "_" + board.name + "_TEMPLATE")
+                    file_info["src_file"].replace(
+                        "_TEMPLATE", "_" + board.name + "_TEMPLATE"
+                    )
                     # .replace("pio_board", self.d["vendor_name"])
                     .replace("pio_board_", "")
                 )
@@ -306,7 +315,8 @@ class AVRPackage:
                 )
             )
 
-            # find the pin definition file for the board
+            # Run substitutions in all remaining _TEMPLATE files in the variants directory
+            print(f"Customizing remaining template files for board {board.name}")
             variant_dir = os.path.join(self.package_directory, "variants", board.name)
             # temporarily rename the pin definition file
             os.rename(
@@ -409,7 +419,7 @@ class AVRPackage:
         # see structure specifications here: https://arduino.github.io/arduino-cli/1.4/package_index_json-specification/
 
         # create the package structure
-        package = {
+        package_template = {
             "name": self.d["vendor_name_long"],
             "maintainer": self.d["maintainer_name"],
             "websiteURL": self.d["info_url"],
@@ -441,20 +451,20 @@ class AVRPackage:
                 print(
                     f"No existing package index found at {self.d['package_index_url']}, creating a new one"
                 )
-                packages = {"packages": [copy.deepcopy(package)]}
+                packages = {"packages": [copy.deepcopy(package_template)]}
         else:
             print("No existing package index found, creating a new one")
-            packages = {"packages": [copy.deepcopy(package)]}
+            packages = {"packages": [copy.deepcopy(package_template)]}
 
         existing_platforms: list = []
         if "packages" in packages and len(packages["packages"]) > 0:
             existing_package = copy.deepcopy(packages["packages"][0])
             # verify that the basic package info matches the existing one if it exists
             if (
-                existing_package["name"] != package["name"]
-                or existing_package["maintainer"] != package["maintainer"]
-                or existing_package["websiteURL"] != package["websiteURL"]
-                or existing_package["email"] != package["email"]
+                existing_package["name"] != package_template["name"]
+                or existing_package["maintainer"] != package_template["maintainer"]
+                or existing_package["websiteURL"] != package_template["websiteURL"]
+                or existing_package["email"] != package_template["email"]
             ):
                 raise RuntimeError(
                     "Existing package index has different basic info (name, maintainer, websiteURL, or email). Please resolve this conflict before proceeding."
@@ -473,16 +483,17 @@ class AVRPackage:
                         )
                         existing_platforms.pop(idx)
 
-        # let's create the current version of avr platform
+        # let's create the current version of our AVR platform
         avr_current = {
             "name": self.d["package_name"],
             "architecture": "avr",
             "version": self.d["package_version"],
             "category": "Contributed",
+            "help": {"online": self.d["help_url"]},
             "url": self.d["package_archive_url"] + self.d["archive_filename"],
             "archiveFileName": self.d["archive_filename"],
             "checksum": "SHA-256:" + self.d["archive_checksum"],
-            "size": self.d["archive_size"],
+            "size": str(self.d["archive_size"]),
             "boards": [],
             "toolsDependencies": [],
         }
@@ -505,4 +516,4 @@ class AVRPackage:
             json.dump(packages, indexfile, indent=2)
 
 
-# cSpell:words esque AVRConfig
+# cSpell:words hughdbrown esque AVRBoard DARDUINO onexc multikeysort
