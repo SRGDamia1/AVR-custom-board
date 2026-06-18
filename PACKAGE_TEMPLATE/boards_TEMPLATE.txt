@@ -4,12 +4,16 @@ ${vendor_name}_${board_name}.name=$board_name_long
 
 # Upload
 ${vendor_name}_${board_name}.upload.tool=arduino:avrdude
+${vendor_name}_${board_name}.upload.tool.default=arduino:avrdude
+${vendor_name}_${board_name}.upload.tool.serial=arduino:avrdude
 ${vendor_name}_${board_name}.upload.protocol=arduino
-${vendor_name}_${board_name}.upload.maximum_size=130048
-${vendor_name}_${board_name}.upload.speed=57600
+${vendor_name}_${board_name}.upload.maximum_size=$maximum_size
+${vendor_name}_${board_name}.upload.maximum_data_size=$ram_size
+${vendor_name}_${board_name}.upload.speed=$upload_speed
+${vendor_name}_${board_name}.upload.serial.speed=$upload_speed
 
 # Build
-${vendor_name}_${board_name}.build.mcu=$build_mcu
+${vendor_name}_${board_name}.build.mcu=$chip_variant_lower
 ${vendor_name}_${board_name}.build.f_cpu=$f_cpu
 ${vendor_name}_${board_name}.build.core=arduino:arduino
 ${vendor_name}_${board_name}.build.board=$board_define_name
@@ -18,10 +22,11 @@ ${vendor_name}_${board_name}.build.extra_flags=$extra_flags {build.usb_flags}
 
 # Bootloader
 ${vendor_name}_${board_name}.bootloader.tool=arduino:avrdude
+${vendor_name}_${board_name}.bootloader.tool.default=arduino:avrdude
 ${vendor_name}_${board_name}.bootloader.low_fuses=0xFF
 ${vendor_name}_${board_name}.bootloader.high_fuses=0xD6
 ${vendor_name}_${board_name}.bootloader.extended_fuses=0xFD
 #{vendor_name}_${board_name}.bootloader.path=optiboot
-${vendor_name}_${board_name}.bootloader.file=optiboot/optiboot_atmega1284p.hex
+${vendor_name}_${board_name}.bootloader.file=optiboot/optiboot_$chip_variant_lower.hex
 ${vendor_name}_${board_name}.bootloader.unlock_bits=0x3F
 ${vendor_name}_${board_name}.bootloader.lock_bits=0x2F
