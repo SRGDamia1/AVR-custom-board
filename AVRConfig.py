@@ -5,6 +5,8 @@ Main class to keep configuration data for AVR board
 """
 
 import os
+import subprocess
+from pathlib import Path
 import copy
 import shutil
 import stat
@@ -73,6 +75,18 @@ def multikeysort(items, columns, functions={}, getter=i):
             return 0
 
     return sorted(items, key=cmp_to_key(comparer))
+
+
+def find_clang_format_style_file(start_dir: str) -> str | None:
+    current_dir = Path(start_dir).resolve()
+    while True:
+        style_file = current_dir / ".clang-format"
+        if style_file.exists():
+            return str(style_file)
+        if current_dir.parent == current_dir:
+            break
+        current_dir = current_dir.parent
+    return None
 
 
 # The class for a single board configuration
@@ -205,7 +219,9 @@ class AVRPackage:
 
     # reads template file, does all substitutions from the dictionary, saves result as destination
     # source and destination should be filenames
-    def process_file(self, source, destination, sub_dict=None):
+    def process_file(
+        self, source, destination, sub_dict=None, format_file: bool = False
+    ):
         print(f"Processing template file {source} to create {destination}")
         if sub_dict is None:
             sub_dict = self.d
@@ -220,6 +236,33 @@ class AVRPackage:
         # write the new file
         with open(destination, "w", encoding="UTF-8") as dest_file:
             dest_file.write(new_data)
+
+        # run clang-format on the generated file if requested
+        if format_file:
+            style_file = ".clang-format"
+            if (
+                Path(destination).suffix in [".c", ".cpp", ".h"]
+                and os.path.exists("C:\\Program Files\\LLVM\\bin\\clang-format.exe")
+                and os.path.exists(style_file)
+            ):
+                command_list = [
+                    "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
+                    f"-style=file:{style_file}" if style_file else "-style=file",
+                    "-i",
+                    destination,
+                ]
+                print(
+                    f"\tCalling clang-format: {subprocess.list2cmdline(command_list)}"
+                )
+                subprocess.run(
+                    [
+                        "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
+                        f"-style=file:{style_file}" if style_file else "-style=file",
+                        "-i",
+                        destination,
+                    ],
+                    capture_output=True,
+                )
 
         # delete the template file
         os.remove(source)
@@ -328,6 +371,7 @@ class AVRPackage:
                 os.path.join(variant_dir, "pins_arduino_TEMPLATE.h"),
                 os.path.join(variant_dir, "pins_arduino.h"),
                 board.d | self.d,
+                True,
             )
 
         # delete the template files we made copies of instead of simply moving
