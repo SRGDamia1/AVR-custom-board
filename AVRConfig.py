@@ -220,7 +220,12 @@ class AVRPackage:
     # reads template file, does all substitutions from the dictionary, saves result as destination
     # source and destination should be filenames
     def process_file(
-        self, source, destination, sub_dict=None, format_file: bool = False
+        self,
+        source,
+        destination,
+        sub_dict=None,
+        format_file: bool = False,
+        delete_source: bool = True,
     ):
         print(f"Processing template file {source} to create {destination}")
         if sub_dict is None:
@@ -264,8 +269,10 @@ class AVRPackage:
                     capture_output=True,
                 )
 
-        # delete the template file
-        os.remove(source)
+        # delete copied templates after processing, but preserve source templates
+        # that are intentionally rendered only after the package archive is built
+        if delete_source:
+            os.remove(source)
 
     def setup_build_directory(self):
         # directory for the built package
@@ -306,6 +313,18 @@ class AVRPackage:
     # creates platform.txt, version and README.md files, by processing template files in package directory
     # these are used by the Arduino IDE
     def write_platform_templates(self):
+        self.d["board_list"] = "\n".join(
+            [
+                "| Board | Version | Chip variant | `BOARD_DEFINE_NAME` |",
+                "| --- | --- | --- | --- |",
+            ]
+            + [
+                f"| {board.d['board_name_long']} | {board.board_version} | "
+                f"{board.chip_variant} | `{board.d['board_define_name']}` |"
+                for board in self.boards_config
+            ]
+        )
+
         # create template sub-directories for each board and copy the relevant template files into them
         board_files_to_copy = [
             {
@@ -560,4 +579,4 @@ class AVRPackage:
             json.dump(packages, indexfile, indent=2)
 
 
-# cSpell:words hughdbrown esque AVRBoard DARDUINO onexc multikeysort
+# cSpell:ignore hughdbrown esque AVRBoard DARDUINO onexc multikeysort
